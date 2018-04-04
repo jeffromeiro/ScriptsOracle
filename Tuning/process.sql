@@ -1,0 +1,17 @@
+select s.username u_username, ' ''' || s.sid || ',' || s.serial# || '''' u_sid, 
+       --s.audsid u_audsid,
+       s.osuser u_osuser, 
+       substr(s.machine,instr(s.machine,'\')) u_machine, 
+       substr(s.program,1,20) u_program,
+       p.spid u_spid, 
+       -- s.sql_address, 
+       s.sql_hash_value, 
+       s.last_call_et lastcall, 
+       s.status 
+       --, s.logon_time
+from 
+    v$session s,
+    v$process p
+where
+    (+)s.paddr=p.addr
+/

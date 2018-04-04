@@ -1,0 +1,16 @@
+SELECT /*+ ORDERED */
+      T.*
+    FROM
+      (SELECT DISTINCT
+         PLAN_HASH_VALUE
+       FROM
+         PERFSTAT.STATS$SQL_PLAN_USAGE
+       WHERE
+         SQL_ID='8mfg0bgzw9q07'
+      ORDER BY
+        PLAN_HASH_VALUE) SPU,
+     TABLE(DBMS_XPLAN.DISPLAY(
+       'PERFSTAT.STATS$SQL_PLAN',
+       NULL,
+       'TYPICAL -PREDICATE -NOTE',
+       'PLAN_HASH_VALUE='||SPU.PLAN_HASH_VALUE)) T; 
