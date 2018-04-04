@@ -1,0 +1,115 @@
+##################### SCRIPTS DE MONITORACAO DO TNG #################################
+00,10,20,30,40,50 * * * * sh /home/oracle/chklist/scripts/check_maxextents.sh prod 2>&1 >> /dev/null
+00 * * * * sh /home/oracle/chklist/scripts/check_maxdatafiles.sh prod 2>&1 >> /dev/null
+00,10,20,30,40,50 * * * * sh /home/oracle/chklist/scripts/check_nextextent.sh prod 2>&1 >> /dev/null
+00,10,20,30,40,50 * * * * sh /home/oracle/chklist/scripts/check_df.sh prod         2>&1 >> /dev/null
+00,10,20,30,40,50 * * * * sh /home/oracle/chklist/scripts/check_autoextent.sh prod 2>&1 >> /dev/null
+00 8,18,21 * * 1-6 sh /home/oracle/chklist/scripts/check_backup_on_status.sh prod 2>&1 >> /dev/null
+00,10,20,30,40,50 * * * * sh /home/oracle/chklist/scripts/check_asm.sh +ASM1 2>&1 >> /dev/null
+00,10,20,30,40,50 * * * * sh /home/oracle/chklist/scripts/check_offline_recover.sh prod 2>&1 >> /dev/null
+00,10,20,30,40,50 * * * * sh /home/oracle/chklist/scripts/check_index_status.sh prod 2>&1 >> /dev/null
+00,10,20,30,40,50 * * * * sh /home/oracle/chklist/scripts/check_offline_tablespace.sh prod 2>&1 >> /dev/null
+00,10,20,30,40,50 * * * * sh /home/oracle/chklist/scripts/check_ind_monit.sh prod 2>&1 >> /dev/null
+00,10,20,30,40,50 * * * * sh /home/oracle/chklist/scripts/check_table_monit.sh prod 2>&1 >> /dev/null
+
+
+##################### Scripts que coletam os dados dos checklists 3151 e 3152 #####################
+00 05 01 * * sh /home/oracle/chklist/scripts/checklist_3151.sh prod 2>&1 >> /dev/null
+00 06 01 * * sh /home/oracle/chklist/scripts/checklist_3152.sh prod 2>&1 >> /dev/null
+00 09 02 * * sh /home/oracle/chklist/scripts/send_checklists.sh 2>&1 >> /dev/null
+
+
+## Monitoracao das particoes necessarias para o DBM02
+#
+#Desabilitado em 24/02/2010 por Marcio Santos - Devido a duplicidade no processo na contrab
+#
+#0 7 * * * sh /home/oracle/chklist/scripts/check_pgt.sh prod  2>&1 >> /dev/null
+#0 7 * * * sh /home/oracle/chklist/scripts/check_rms_adm_emp_srv.sh prod  2>&1 >> /dev/null
+#0 7 * * * sh /home/oracle/chklist/scripts/check_trs_cur.sh prod  2>&1 >> /dev/null
+#0 7 * * * sh /home/oracle/chklist/scripts/check_trs_hst.sh prod  2>&1 >> /dev/null
+
+###################### Coleta de Informacoes do Oracle ##############################
+#00 18 * * * sh /home/oracle/chklist/scripts/monitor.sh prod 2>&1 >> /dev/null
+00 8 * * * sh /home/oracle/chklist/scripts/sel_reglogon.sh 2>&1 >> /dev/null
+
+#### ROTINA DE BACKUP DAS ESTATISTICAS DO SCHEMA PROD_DBA ####
+00 19 * * * sh /oracle/product/102/admin/prod/scripts/bin/exportstatsPRODDBA.sh 1>>/oracle/product/102/admin/prod/scripts/log/PKG_MAN_STATS.log 2>>/oracle/product/102/admin/prod/scripts/log/PKG_MAN_STATS.err
+
+##############################################################################################################################
+## Coleta de estatisticas do banco de dados PROD usando DBMS_GATHER
+##############################################################################################################################
+#
+#25 10 * * 0 /oracle/product/102/admin/prod/scripts/bin/getstatsPROD.sh 1>/oracle/product/102/admin/prod/scripts/log/dba_analise_prod'_'`date \+\%d\%m\%y'_'\%H\%M`.log 2>/oracle/product/102/admin/prod/scripts/log/dba_analise_prod'_'`date \+\%d\%m\%y'_'\%H\%M`.err
+#
+00 8 * * 0 sh /oracle/product/102/admin/prod/scripts/bin/getstats_table_np.sh 1>/oracle/product/102/admin/prod/scripts/bin/getstats_table_np'_'`date \+\%d\%m\%y'_'\%H\%M`.log 2>/oracle/product/102/admin/prod/scripts/bin/getstats_table_np'_'`date \+\%d\%m\%y'_'\%H\%M`.err
+
+00 8 * * 0 sh /oracle/product/102/admin/prod/scripts/bin/getstats_index_np.sh 1>/oracle/product/102/admin/prod/scripts/bin/getstats_index_np'_'`date \+\%d\%m\%y'_'\%H\%M`.log 2>/oracle/product/102/admin/prod/scripts/bin/getstats_index_np'_'`date \+\%d\%m\%y'_'\%H\%M`.err
+
+25 9 * * 0 sh /oracle/product/102/admin/prod/scripts/bin/getstats_table_p.sh 1>/oracle/product/102/admin/prod/scripts/bin/getstats_table_p'_'`date \+\%d\%m\%y'_'\%H\%M`.log 2>/oracle/product/102/admin/prod/scripts/bin/getstats_table_p'_'`date \+\%d\%m\%y'_'\%H\%M`.err
+
+45 9 * * 0 sh /oracle/product/102/admin/prod/scripts/bin/getstats_index_p.sh 1>/oracle/product/102/admin/prod/scripts/bin/getstats_index_p'_'`date \+\%d\%m\%y'_'\%H\%M`.log 2>/oracle/product/102/admin/prod/scripts/bin/getstats_index_p'_'`date \+\%d\%m\%y'_'\%H\%M`.err
+#
+################### EXPORT DA ESTRUTURA DO BANCO #######################
+00 19 * * * sh /oracle/product/102/admin/prod/flashback/exportEstrutura/exportEstrutura.sh prod
+
+################### Execute um flush na shared pool ######################
+#00 19 * * * sh /oracle/product/102/admin/prod/scripts/bin/exec_flush.sh 1>/oracle/product/102/admin/prod/scripts/log/exec_flush.log 2>/oracle/product/102/admin/prod/scripts/log/exec_flush.err
+
+################### Monitoracao de processos Oracle > 20% CPU o ######################
+5,10,15,20,25,30,35,40,45,49,50,55,59 * * * *  /home/oracle/scripts/cpu_oracle.sh >> /tmp/c.log
+
+################### Monitoracao de V$SGA_DYNAMIC_COMPONENTS  ######################
+5,15,25,35,45,53,55 * * * *  /home/oracle/scripts/dynamic_comp.sh >> /tmp/comp.log
+
+################## Coleta de utilizacao de CPU ###########################################################################
+00,30 * * * *  /home/oracle/scripts/coleta_cpu.sh >> /home/oracle/scripts/log/coleta_cpu.log
+
+################## Coleta Workload #######################################################################################
+00,30 * * * *  sh /home/oracle/scripts/coleta_workload.sh 1>/home/oracle/scripts/log/coleta_workload.log 2>/home/oracle/scripts/log/coleta_workload.err
+
+####  Rotina de teste ##########
+#44 19 * * * /oracle/product/102/admin/prod/scripts/bin/teste.sh prod 1>/oracle/product/102/admin/prod/scripts/log/teste1_`date \+\%d\%m\%y_\%H\%M`.log 2>/oracle/product/102/admin/prod/scripts/log/teste1'_'`date \+\%d\%m\%y'_'\%H\%M`.err
+
+#### Rotina que manda email todos os dias sobre o status do backup ####
+00 06 * * * sh /home/oracle/scripts/bkp.sh 1>>/tmp/log_bkp.txt 2>>/tmp/log_bkp.err 
+
+####################################Coleta de dados do DBI###################################################
+0 2 * * 4 /usr/bin/sh /tmp/DBI/executaDBI.sh prod  1>>/tmp/DBI/log/log_prod.txt 2>>/tmp/DBI/log/log_prod.err
+
+################# BACKUP DA CRONTAB #################
+00 18 * * * /oracle/bkp_crontab/crontab.sh
+
+################# BACKUP DO CONTROLFILE #########################
+00 20 * * * sh /home/oracle/scripts/ctrfile.sh prod 2>&1 >> /dev/null
+
+################ VERIFICA SE ALGUM INDICE ESTA COM A MONITORACAO DESABILITADA, CASO POSITIVO A MONITORACAO E HABILITADA ###########
+00 19 * * * sh /home/oracle/scripts/exec_monitoring.sh prod 2>&1 >> /dev/null
+
+################ VERIFICA SE ALGUM USUARIO ESTA NA PROFILE DEFAULT ###################################################
+00,10,20,30,40,50 * * * * sh /home/oracle/chklist/scripts/check_profile.sh prod 2>&1 >> /dev/null
+
+################ VERIFICA SE ALGUM PROCESSO DO RMAN ESTA LOGADO POR MAIS DE UM DIA NO BANCO DE DADOS ##############
+00 07,17 * * * sh /home/oracle/chklist/scripts/check_rman.sh prod 2>&1 >> /dev/null
+
+################ COLETA BLOQUEIOS DE SESSOES BANCO PROD##########################################
+00,02,04,06,08,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58 * * * * /home/oracle/chklist/scripts/coleta_bloqueios.sh 1>>/home/oracle/chklist/scripts/coleta_bloqueios_cron.log 2>>/home/oracle/chklist/scripts/coleta_bloqueios_err.log 
+
+################# HABILITA TRIGGER DE LOGON #################
+00 00 * * * sh /home/oracle/scripts/enatrig.sh 
+
+################# DESABILITA TRIGGER DE LOGON #################
+00 08 * * * sh /home/oracle/scripts/distrig.sh
+
+## Monitoracao das particoes necessarias para o PROD
+
+0 7 * * * sh /home/oracle/chklist/scripts/check_PGT.sh prod    2>&1 >> /dev/null
+0 7 * * * sh /home/oracle/chklist/scripts/check_RMS_ADM_EMP_SRV.sh prod 2>&1 >> /dev/null
+0 7 * * * sh /home/oracle/chklist/scripts/check_TRS_CUR.sh prod    2>&1 >> /dev/null
+0 7 * * * sh /home/oracle/chklist/scripts/check_TRS_HST.sh prod    2>&1 >> /dev/null
+
+################# Stop Start Agent10G OEM     #################
+#00 *  * * * sh /home/oracle/scripts/stop_start_agent10.sh
+
+################# Backup do Oracle ClusterWare Voting Disk ################
+00 12 * * 4 sh /home/oracle/scripts/bkp_RAC_voting_disk.sh 1>/oracle/bkprac/bkp_RAC_voting_disk.log 2>/oracle/bkprac/bkp_RAC_voting_disk.err
+
